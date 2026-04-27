@@ -1,0 +1,139 @@
+{
+  "name": "ledgermem-vscode",
+  "displayName": "LedgerMem",
+  "description": "Persistent memory for AI coding assistants. Search, add, and manage memories from VS Code, Cursor, Windsurf, and code-server.",
+  "version": "0.1.0",
+  "publisher": "ledgermem",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ledgermem/ledgermem-vscode.git"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other", "AI", "Machine Learning"],
+  "keywords": ["memory", "ai", "llm", "context", "rag"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./out/extension.js",
+  "icon": "media/icon.png",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ledgermem.search",
+        "title": "LedgerMem: Search Memory",
+        "category": "LedgerMem"
+      },
+      {
+        "command": "ledgermem.add",
+        "title": "LedgerMem: Add Selection to Memory",
+        "category": "LedgerMem"
+      },
+      {
+        "command": "ledgermem.deleteMemory",
+        "title": "LedgerMem: Delete Memory",
+        "category": "LedgerMem"
+      },
+      {
+        "command": "ledgermem.refresh",
+        "title": "LedgerMem: Refresh Sidebar",
+        "category": "LedgerMem",
+        "icon": "$(refresh)"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "ledgermem.search",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m"
+      },
+      {
+        "command": "ledgermem.add",
+        "key": "ctrl+alt+a",
+        "mac": "cmd+alt+a",
+        "when": "editorHasSelection"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ledgermem-sidebar",
+          "title": "LedgerMem",
+          "icon": "media/sidebar.svg"
+        }
+      ]
+    },
+    "views": {
+      "ledgermem-sidebar": [
+        {
+          "id": "ledgermem.recentMemories",
+          "name": "Recent Memories",
+          "icon": "media/sidebar.svg",
+          "contextualTitle": "LedgerMem"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "ledgermem.refresh",
+          "when": "view == ledgermem.recentMemories",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ledgermem.deleteMemory",
+          "when": "view == ledgermem.recentMemories && viewItem == memory",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "LedgerMem",
+      "properties": {
+        "ledgermem.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "LedgerMem API key. Get one at https://ledgermem.dev/settings/api-keys",
+          "scope": "machine-overridable"
+        },
+        "ledgermem.workspaceId": {
+          "type": "string",
+          "default": "",
+          "description": "Workspace ID to scope memory operations to."
+        },
+        "ledgermem.defaultLimit": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Default number of results to return for searches and the sidebar."
+        },
+        "ledgermem.endpoint": {
+          "type": "string",
+          "default": "https://api.ledgermem.dev",
+          "description": "LedgerMem API endpoint."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "test": "vitest run",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package",
+    "vscode:prepublish": "npm run compile"
+  },
+  "dependencies": {
+    "@ledgermem/memory": "^0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.24.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}
