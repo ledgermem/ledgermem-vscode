@@ -14,7 +14,14 @@
   },
   "categories": ["Other", "AI", "Machine Learning"],
   "keywords": ["memory", "ai", "llm", "context", "rag"],
-  "activationEvents": ["onStartupFinished"],
+  "activationEvents": [
+    "onCommand:ledgermem.search",
+    "onCommand:ledgermem.add",
+    "onCommand:ledgermem.deleteMemory",
+    "onCommand:ledgermem.refresh",
+    "onCommand:ledgermem.setApiKey",
+    "onView:ledgermem.recentMemories"
+  ],
   "main": "./out/extension.js",
   "icon": "media/icon.png",
   "contributes": {
@@ -79,6 +86,20 @@
       ]
     },
     "menus": {
+      "commandPalette": [
+        {
+          "command": "ledgermem.refresh",
+          "when": "false"
+        },
+        {
+          "command": "ledgermem.deleteMemory",
+          "when": "false"
+        },
+        {
+          "command": "ledgermem.add",
+          "when": "editorHasSelection"
+        }
+      ],
       "view/title": [
         {
           "command": "ledgermem.refresh",

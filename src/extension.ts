@@ -16,7 +16,9 @@ export function activate(context: vscode.ExtensionContext): void {
     treeDataProvider: sidebarProvider,
     showCollapseAll: false,
   });
-  context.subscriptions.push(treeView);
+  // Register the provider as a disposable too — its internal EventEmitter
+  // would otherwise leak across extension reloads.
+  context.subscriptions.push(treeView, sidebarProvider);
 
   registerCommands(context, client, sidebarProvider, output);
 

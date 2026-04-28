@@ -25,7 +25,9 @@ class StatusItem extends vscode.TreeItem {
   }
 }
 
-export class LedgerMemSidebarProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
+export class LedgerMemSidebarProvider
+  implements vscode.TreeDataProvider<vscode.TreeItem>, vscode.Disposable
+{
   private readonly _onDidChangeTreeData = new vscode.EventEmitter<
     vscode.TreeItem | undefined
   >();
@@ -35,6 +37,13 @@ export class LedgerMemSidebarProvider implements vscode.TreeDataProvider<vscode.
 
   refresh(): void {
     this._onDidChangeTreeData.fire(undefined);
+  }
+
+  // Implement Disposable so the EventEmitter is torn down when the extension
+  // host unloads or the user disables the extension. Without this the emitter
+  // leaks across reloads (e.g. when the user reloads the window during dev).
+  dispose(): void {
+    this._onDidChangeTreeData.dispose();
   }
 
   getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
