@@ -76,14 +76,30 @@ export function deactivate(): void {
 
 async function migrateApiKeyToSecrets(context: vscode.ExtensionContext): Promise<void> {
   const cfg = vscode.workspace.getConfiguration(EXTENSION_ID);
-  const settingKey = cfg.get<string>("apiKey", "");
-  if (!settingKey) {
+  const inspected = cfg.inspect<string>("apiKey");
+  const candidate =
+    inspected?.workspaceFolderValue ??
+    inspected?.workspaceValue ??
+    inspected?.globalValue ??
+    "";
+  if (!candidate) {
     return;
   }
   const existing = await context.secrets.get("ledgermem.apiKey");
   if (!existing) {
-    await context.secrets.store("ledgermem.apiKey", settingKey);
+    await context.secrets.store("ledgermem.apiKey", candidate);
   }
-  // Clear the plaintext setting so it doesn't sit in settings.json on disk.
-  await cfg.update("apiKey", "", vscode.ConfigurationTarget.Global);
+  // Clear the plaintext setting from EVERY scope it appears in. Updating only
+  // ConfigurationTarget.Global left the key sitting in `.vscode/settings.json`
+  // (workspace) or in a folder-scoped settings file — exactly the place the
+  // SecretStorage migration is supposed to evict it from.
+  if (inspected?.globalValue !== undefined) {
+    await cfg.update("apiKey", undefined, vscode.ConfigurationTarget.Global);
+  }
+  if (inspected?.workspaceValue !== undefined) {
+    await cfg.update("apiKey", undefined, vscode.ConfigurationTarget.Workspace);
+  }
+  if (inspected?.workspaceFolderValue !== undefined) {
+    await cfg.update("apiKey", undefined, vscode.ConfigurationTarget.WorkspaceFolder);
+  }
 }

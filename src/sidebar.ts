@@ -54,7 +54,13 @@ export class LedgerMemSidebarProvider
     if (element) {
       return [];
     }
-    if (!this.client.config.apiKey || !this.client.config.workspaceId) {
+    // Force a fresh read of settings + SecretStorage. The cached snapshot
+    // exposed by `client.config` is populated asynchronously after activate(),
+    // so the very first getChildren() call (which VS Code makes before that
+    // promise resolves) used to see an empty config and tell the user to
+    // configure the extension even when it was already configured.
+    const config = await this.client.refreshConfig();
+    if (!config.apiKey || !config.workspaceId) {
       return [new StatusItem("Configure ledgermem.apiKey and ledgermem.workspaceId in Settings.")];
     }
     try {

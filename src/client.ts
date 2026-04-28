@@ -19,6 +19,8 @@ export interface Memory {
 
 export interface ClientHandle {
   readonly config: LedgerMemConfig;
+  /** Force a fresh read of settings + secrets and return the latest snapshot. */
+  refreshConfig(): Promise<LedgerMemConfig>;
   search(query: string, limit?: number): Promise<readonly Memory[]>;
   add(content: string, metadata?: Record<string, unknown>): Promise<Memory>;
   delete(id: string): Promise<void>;
@@ -59,6 +61,7 @@ export function createClient(secrets?: vscode.SecretStorage): ClientHandle {
     get config(): LedgerMemConfig {
       return cachedConfig;
     },
+    refreshConfig: refresh,
     async search(query: string, limit?: number): Promise<readonly Memory[]> {
       const cfg = await refresh();
       assertConfigured(cfg);
