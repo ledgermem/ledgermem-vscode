@@ -10,15 +10,9 @@ export class MemoryTreeItem extends vscode.TreeItem {
     this.contextValue = "memory";
     this.iconPath = new vscode.ThemeIcon("note");
     this.command = {
-      command: "vscode.open",
+      command: "ledgermem.openMemory",
       title: "Open Memory",
-      arguments: [
-        vscode.Uri.parse(
-          `untitled:Memory-${memory.id.slice(0, 8)}.md?content=${encodeURIComponent(
-            memory.content,
-          )}`,
-        ),
-      ],
+      arguments: [memory],
     };
   }
 }

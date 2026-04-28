@@ -27,6 +27,7 @@ vi.mock("vscode", () => {
     workspace: {
       getConfiguration: () => ({
         get: <T>(_key: string, fallback: T): T => fallback,
+        update: vi.fn(async () => undefined),
       }),
       onDidChangeConfiguration: (): { dispose: () => void } => ({ dispose: (): void => {} }),
       openTextDocument: vi.fn(),
@@ -50,6 +51,7 @@ vi.mock("vscode", () => {
       registerCommand: vi.fn(() => ({ dispose: vi.fn() })),
     },
     ProgressLocation: { Notification: 15 },
+    ConfigurationTarget: { Global: 1, Workspace: 2, WorkspaceFolder: 3 },
     ExtensionContext: class {
       public subscriptions = subscriptions;
     },
@@ -85,7 +87,15 @@ describe("extension", () => {
   });
 
   it("activates without throwing", () => {
-    const ctx = { subscriptions: [] } as unknown as vscode.ExtensionContext;
+    const ctx = {
+      subscriptions: [],
+      secrets: {
+        get: vi.fn(async () => undefined),
+        store: vi.fn(async () => undefined),
+        delete: vi.fn(async () => undefined),
+        onDidChange: () => ({ dispose: (): void => {} }),
+      },
+    } as unknown as vscode.ExtensionContext;
     expect(() => activate(ctx)).not.toThrow();
     expect(ctx.subscriptions.length).toBeGreaterThan(0);
   });

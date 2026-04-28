@@ -39,6 +39,11 @@
         "title": "LedgerMem: Refresh Sidebar",
         "category": "LedgerMem",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "ledgermem.setApiKey",
+        "title": "LedgerMem: Set API Key",
+        "category": "LedgerMem"
       }
     ],
     "keybindings": [
@@ -95,8 +100,9 @@
         "ledgermem.apiKey": {
           "type": "string",
           "default": "",
-          "description": "LedgerMem API key. Get one at https://ledgermem.dev/settings/api-keys",
-          "scope": "machine-overridable"
+          "description": "DEPRECATED — use the 'LedgerMem: Set API Key' command. Stored in plaintext on disk; values here will be migrated to VS Code SecretStorage on activation and then cleared.",
+          "scope": "machine-overridable",
+          "deprecationMessage": "Use the 'LedgerMem: Set API Key' command. Plaintext API keys in settings.json will be migrated to SecretStorage automatically."
         },
         "ledgermem.workspaceId": {
           "type": "string",

@@ -23,6 +23,9 @@ export function registerCommands(
       runDelete(client, sidebar, output, item),
     ),
     vscode.commands.registerCommand("ledgermem.refresh", () => sidebar.refresh()),
+    vscode.commands.registerCommand("ledgermem.openMemory", (memory: Memory) =>
+      openMemoryInEditor(memory),
+    ),
   );
 }
 

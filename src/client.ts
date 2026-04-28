@@ -25,24 +25,42 @@ export interface ClientHandle {
   recent(limit?: number): Promise<readonly Memory[]>;
 }
 
-function readConfig(): LedgerMemConfig {
+const SECRET_API_KEY = "ledgermem.apiKey";
+
+async function readConfig(secrets?: vscode.SecretStorage): Promise<LedgerMemConfig> {
   const cfg = vscode.workspace.getConfiguration(EXTENSION_ID);
+  // Prefer SecretStorage; fall back to settings only as a one-time migration source.
+  const secretKey = secrets ? await secrets.get(SECRET_API_KEY) : undefined;
+  const settingKey = cfg.get<string>("apiKey", "");
+  const apiKey = secretKey ?? settingKey ?? "";
   return {
-    apiKey: cfg.get<string>("apiKey", ""),
+    apiKey,
     workspaceId: cfg.get<string>("workspaceId", ""),
     defaultLimit: cfg.get<number>("defaultLimit", 10),
     endpoint: cfg.get<string>("endpoint", "https://api.ledgermem.dev"),
   };
 }
 
-export function createClient(): ClientHandle {
+export function createClient(secrets?: vscode.SecretStorage): ClientHandle {
   // Re-read config on every call so settings changes take effect immediately.
+  let cachedConfig: LedgerMemConfig = {
+    apiKey: "",
+    workspaceId: "",
+    defaultLimit: 10,
+    endpoint: "https://api.ledgermem.dev",
+  };
+  // Refresh cache eagerly; getters expose the latest snapshot synchronously.
+  const refresh = async (): Promise<LedgerMemConfig> => {
+    cachedConfig = await readConfig(secrets);
+    return cachedConfig;
+  };
+  void refresh();
   const handle: ClientHandle = {
     get config(): LedgerMemConfig {
-      return readConfig();
+      return cachedConfig;
     },
     async search(query: string, limit?: number): Promise<readonly Memory[]> {
-      const cfg = readConfig();
+      const cfg = await refresh();
       assertConfigured(cfg);
       const sdk = new LedgerMemClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
       const results = await sdk.search({
@@ -53,7 +71,7 @@ export function createClient(): ClientHandle {
       return results.map(toMemory);
     },
     async add(content: string, metadata?: Record<string, unknown>): Promise<Memory> {
-      const cfg = readConfig();
+      const cfg = await refresh();
       assertConfigured(cfg);
       const sdk = new LedgerMemClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
       const created = await sdk.add({
@@ -64,13 +82,13 @@ export function createClient(): ClientHandle {
       return toMemory(created);
     },
     async delete(id: string): Promise<void> {
-      const cfg = readConfig();
+      const cfg = await refresh();
       assertConfigured(cfg);
       const sdk = new LedgerMemClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
       await sdk.delete({ id, workspaceId: cfg.workspaceId });
     },
     async recent(limit?: number): Promise<readonly Memory[]> {
-      const cfg = readConfig();
+      const cfg = await refresh();
       assertConfigured(cfg);
       const sdk = new LedgerMemClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
       const results = await sdk.list({
@@ -88,7 +106,7 @@ export function createClient(): ClientHandle {
 function assertConfigured(cfg: LedgerMemConfig): void {
   if (!cfg.apiKey) {
     throw new Error(
-      "LedgerMem API key is not set. Open Settings and configure 'ledgermem.apiKey'.",
+      "LedgerMem API key is not set. Run 'LedgerMem: Set API Key' to store it securely.",
     );
   }
   if (!cfg.workspaceId) {
