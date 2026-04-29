@@ -1,18 +1,18 @@
 import * as vscode from "vscode";
 import { registerCommands } from "./commands";
-import { LedgerMemSidebarProvider } from "./sidebar";
+import { MnemoSidebarProvider } from "./sidebar";
 import { createClient } from "./client";
 
-export const EXTENSION_ID = "ledgermem";
+export const EXTENSION_ID = "getmnemo";
 
 export function activate(context: vscode.ExtensionContext): void {
-  const output = vscode.window.createOutputChannel("LedgerMem");
-  output.appendLine("LedgerMem extension activated.");
+  const output = vscode.window.createOutputChannel("Mnemo");
+  output.appendLine("Mnemo extension activated.");
 
   const client = createClient(context.secrets);
 
-  const sidebarProvider = new LedgerMemSidebarProvider(client);
-  const treeView = vscode.window.createTreeView("ledgermem.recentMemories", {
+  const sidebarProvider = new MnemoSidebarProvider(client);
+  const treeView = vscode.window.createTreeView("getmnemo.recentMemories", {
     treeDataProvider: sidebarProvider,
     showCollapseAll: false,
   });
@@ -29,9 +29,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Set API Key command — stores in SecretStorage.
   context.subscriptions.push(
-    vscode.commands.registerCommand("ledgermem.setApiKey", async () => {
+    vscode.commands.registerCommand("getmnemo.setApiKey", async () => {
       const value = await vscode.window.showInputBox({
-        prompt: "Enter LedgerMem API key",
+        prompt: "Enter Mnemo API key",
         password: true,
         ignoreFocusOut: true,
       });
@@ -39,11 +39,11 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
       if (value.length === 0) {
-        await context.secrets.delete("ledgermem.apiKey");
-        vscode.window.showInformationMessage("LedgerMem API key cleared.");
+        await context.secrets.delete("getmnemo.apiKey");
+        vscode.window.showInformationMessage("Mnemo API key cleared.");
       } else {
-        await context.secrets.store("ledgermem.apiKey", value);
-        vscode.window.showInformationMessage("LedgerMem API key saved to secret storage.");
+        await context.secrets.store("getmnemo.apiKey", value);
+        vscode.window.showInformationMessage("Mnemo API key saved to secret storage.");
       }
       sidebarProvider.refresh();
     }),
@@ -61,7 +61,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // React to secret changes (e.g., another window updates the key).
   context.subscriptions.push(
     context.secrets.onDidChange((event) => {
-      if (event.key === "ledgermem.apiKey") {
+      if (event.key === "getmnemo.apiKey") {
         sidebarProvider.refresh();
       }
     }),
@@ -85,9 +85,9 @@ async function migrateApiKeyToSecrets(context: vscode.ExtensionContext): Promise
   if (!candidate) {
     return;
   }
-  const existing = await context.secrets.get("ledgermem.apiKey");
+  const existing = await context.secrets.get("getmnemo.apiKey");
   if (!existing) {
-    await context.secrets.store("ledgermem.apiKey", candidate);
+    await context.secrets.store("getmnemo.apiKey", candidate);
   }
   // Clear the plaintext setting from EVERY scope it appears in. Updating only
   // ConfigurationTarget.Global left the key sitting in `.vscode/settings.json`

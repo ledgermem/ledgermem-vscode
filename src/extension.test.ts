@@ -58,9 +58,9 @@ vi.mock("vscode", () => {
   };
 });
 
-vi.mock("@ledgermem/memory", () => {
+vi.mock("@getmnemo/memory", () => {
   return {
-    LedgerMemClient: class {
+    MnemoClient: class {
       async search(): Promise<unknown[]> {
         return [{ id: "m1", content: "result A", createdAt: "2026-01-01" }];
       }

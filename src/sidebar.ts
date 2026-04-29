@@ -10,7 +10,7 @@ export class MemoryTreeItem extends vscode.TreeItem {
     this.contextValue = "memory";
     this.iconPath = new vscode.ThemeIcon("note");
     this.command = {
-      command: "ledgermem.openMemory",
+      command: "getmnemo.openMemory",
       title: "Open Memory",
       arguments: [memory],
     };
@@ -25,7 +25,7 @@ class StatusItem extends vscode.TreeItem {
   }
 }
 
-export class LedgerMemSidebarProvider
+export class MnemoSidebarProvider
   implements vscode.TreeDataProvider<vscode.TreeItem>, vscode.Disposable
 {
   private readonly _onDidChangeTreeData = new vscode.EventEmitter<
@@ -61,12 +61,12 @@ export class LedgerMemSidebarProvider
     // configure the extension even when it was already configured.
     const config = await this.client.refreshConfig();
     if (!config.apiKey || !config.workspaceId) {
-      return [new StatusItem("Configure ledgermem.apiKey and ledgermem.workspaceId in Settings.")];
+      return [new StatusItem("Configure getmnemo.apiKey and getmnemo.workspaceId in Settings.")];
     }
     try {
       const memories = await this.client.recent();
       if (memories.length === 0) {
-        return [new StatusItem("No memories yet — use 'LedgerMem: Add Selection' to start.")];
+        return [new StatusItem("No memories yet — use 'Mnemo: Add Selection' to start.")];
       }
       return memories.map((m) => new MemoryTreeItem(m));
     } catch (err) {

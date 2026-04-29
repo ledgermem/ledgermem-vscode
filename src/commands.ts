@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { ClientHandle, Memory } from "./client";
-import { LedgerMemSidebarProvider, MemoryTreeItem } from "./sidebar";
+import { MnemoSidebarProvider, MemoryTreeItem } from "./sidebar";
 
 interface MemoryQuickPickItem extends vscode.QuickPickItem {
   memory: Memory;
@@ -9,21 +9,21 @@ interface MemoryQuickPickItem extends vscode.QuickPickItem {
 export function registerCommands(
   context: vscode.ExtensionContext,
   client: ClientHandle,
-  sidebar: LedgerMemSidebarProvider,
+  sidebar: MnemoSidebarProvider,
   output: vscode.OutputChannel,
 ): void {
   context.subscriptions.push(
-    vscode.commands.registerCommand("ledgermem.search", () =>
+    vscode.commands.registerCommand("getmnemo.search", () =>
       runSearch(client, output),
     ),
-    vscode.commands.registerCommand("ledgermem.add", () =>
+    vscode.commands.registerCommand("getmnemo.add", () =>
       runAddSelection(client, sidebar, output),
     ),
-    vscode.commands.registerCommand("ledgermem.deleteMemory", (item?: MemoryTreeItem) =>
+    vscode.commands.registerCommand("getmnemo.deleteMemory", (item?: MemoryTreeItem) =>
       runDelete(client, sidebar, output, item),
     ),
-    vscode.commands.registerCommand("ledgermem.refresh", () => sidebar.refresh()),
-    vscode.commands.registerCommand("ledgermem.openMemory", (memory: Memory) =>
+    vscode.commands.registerCommand("getmnemo.refresh", () => sidebar.refresh()),
+    vscode.commands.registerCommand("getmnemo.openMemory", (memory: Memory) =>
       openMemoryInEditor(memory),
     ),
   );
@@ -34,7 +34,7 @@ async function runSearch(
   output: vscode.OutputChannel,
 ): Promise<void> {
   const query = await vscode.window.showInputBox({
-    prompt: "Search LedgerMem",
+    prompt: "Search Mnemo",
     placeHolder: "what did I learn about pgvector tuning?",
     ignoreFocusOut: true,
   });
@@ -43,7 +43,7 @@ async function runSearch(
   }
   try {
     const results = await vscode.window.withProgress(
-      { location: vscode.ProgressLocation.Notification, title: "Searching LedgerMem..." },
+      { location: vscode.ProgressLocation.Notification, title: "Searching Mnemo..." },
       () => client.search(query),
     );
     if (results.length === 0) {
@@ -70,7 +70,7 @@ async function runSearch(
 
 async function runAddSelection(
   client: ClientHandle,
-  sidebar: LedgerMemSidebarProvider,
+  sidebar: MnemoSidebarProvider,
   output: vscode.OutputChannel,
 ): Promise<void> {
   const editor = vscode.window.activeTextEditor;
@@ -85,7 +85,7 @@ async function runAddSelection(
   }
   try {
     const memory = await vscode.window.withProgress(
-      { location: vscode.ProgressLocation.Notification, title: "Adding to LedgerMem..." },
+      { location: vscode.ProgressLocation.Notification, title: "Adding to Mnemo..." },
       () =>
         client.add(selection, {
           source: "vscode",
@@ -103,7 +103,7 @@ async function runAddSelection(
 
 async function runDelete(
   client: ClientHandle,
-  sidebar: LedgerMemSidebarProvider,
+  sidebar: MnemoSidebarProvider,
   output: vscode.OutputChannel,
   item?: MemoryTreeItem,
 ): Promise<void> {
@@ -150,5 +150,5 @@ function trimLabel(content: string): string {
 function reportError(output: vscode.OutputChannel, op: string, err: unknown): void {
   const message = err instanceof Error ? err.message : String(err);
   output.appendLine(`[${op}] ${message}`);
-  vscode.window.showErrorMessage(`LedgerMem ${op} failed: ${message}`);
+  vscode.window.showErrorMessage(`Mnemo ${op} failed: ${message}`);
 }

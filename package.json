@@ -1,13 +1,13 @@
 {
-  "name": "ledgermem-vscode",
-  "displayName": "LedgerMem",
+  "name": "getmnemo-vscode",
+  "displayName": "Mnemo",
   "description": "Persistent memory for AI coding assistants. Search, add, and manage memories from VS Code, Cursor, Windsurf, and code-server.",
   "version": "0.1.0",
-  "publisher": "ledgermem",
+  "publisher": "getmnemo",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ledgermem/ledgermem-vscode.git"
+    "url": "https://github.com/getmnemo/getmnemo-vscode.git"
   },
   "engines": {
     "vscode": "^1.85.0"
@@ -15,52 +15,52 @@
   "categories": ["Other", "AI", "Machine Learning"],
   "keywords": ["memory", "ai", "llm", "context", "rag"],
   "activationEvents": [
-    "onCommand:ledgermem.search",
-    "onCommand:ledgermem.add",
-    "onCommand:ledgermem.deleteMemory",
-    "onCommand:ledgermem.refresh",
-    "onCommand:ledgermem.setApiKey",
-    "onView:ledgermem.recentMemories"
+    "onCommand:getmnemo.search",
+    "onCommand:getmnemo.add",
+    "onCommand:getmnemo.deleteMemory",
+    "onCommand:getmnemo.refresh",
+    "onCommand:getmnemo.setApiKey",
+    "onView:getmnemo.recentMemories"
   ],
   "main": "./out/extension.js",
   "icon": "media/icon.png",
   "contributes": {
     "commands": [
       {
-        "command": "ledgermem.search",
-        "title": "LedgerMem: Search Memory",
-        "category": "LedgerMem"
+        "command": "getmnemo.search",
+        "title": "Mnemo: Search Memory",
+        "category": "Mnemo"
       },
       {
-        "command": "ledgermem.add",
-        "title": "LedgerMem: Add Selection to Memory",
-        "category": "LedgerMem"
+        "command": "getmnemo.add",
+        "title": "Mnemo: Add Selection to Memory",
+        "category": "Mnemo"
       },
       {
-        "command": "ledgermem.deleteMemory",
-        "title": "LedgerMem: Delete Memory",
-        "category": "LedgerMem"
+        "command": "getmnemo.deleteMemory",
+        "title": "Mnemo: Delete Memory",
+        "category": "Mnemo"
       },
       {
-        "command": "ledgermem.refresh",
-        "title": "LedgerMem: Refresh Sidebar",
-        "category": "LedgerMem",
+        "command": "getmnemo.refresh",
+        "title": "Mnemo: Refresh Sidebar",
+        "category": "Mnemo",
         "icon": "$(refresh)"
       },
       {
-        "command": "ledgermem.setApiKey",
-        "title": "LedgerMem: Set API Key",
-        "category": "LedgerMem"
+        "command": "getmnemo.setApiKey",
+        "title": "Mnemo: Set API Key",
+        "category": "Mnemo"
       }
     ],
     "keybindings": [
       {
-        "command": "ledgermem.search",
+        "command": "getmnemo.search",
         "key": "ctrl+alt+m",
         "mac": "cmd+alt+m"
       },
       {
-        "command": "ledgermem.add",
+        "command": "getmnemo.add",
         "key": "ctrl+alt+a",
         "mac": "cmd+alt+a",
         "when": "editorHasSelection"
@@ -69,78 +69,78 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "ledgermem-sidebar",
-          "title": "LedgerMem",
+          "id": "getmnemo-sidebar",
+          "title": "Mnemo",
           "icon": "media/sidebar.svg"
         }
       ]
     },
     "views": {
-      "ledgermem-sidebar": [
+      "getmnemo-sidebar": [
         {
-          "id": "ledgermem.recentMemories",
+          "id": "getmnemo.recentMemories",
           "name": "Recent Memories",
           "icon": "media/sidebar.svg",
-          "contextualTitle": "LedgerMem"
+          "contextualTitle": "Mnemo"
         }
       ]
     },
     "menus": {
       "commandPalette": [
         {
-          "command": "ledgermem.refresh",
+          "command": "getmnemo.refresh",
           "when": "false"
         },
         {
-          "command": "ledgermem.deleteMemory",
+          "command": "getmnemo.deleteMemory",
           "when": "false"
         },
         {
-          "command": "ledgermem.add",
+          "command": "getmnemo.add",
           "when": "editorHasSelection"
         }
       ],
       "view/title": [
         {
-          "command": "ledgermem.refresh",
-          "when": "view == ledgermem.recentMemories",
+          "command": "getmnemo.refresh",
+          "when": "view == getmnemo.recentMemories",
           "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "ledgermem.deleteMemory",
-          "when": "view == ledgermem.recentMemories && viewItem == memory",
+          "command": "getmnemo.deleteMemory",
+          "when": "view == getmnemo.recentMemories && viewItem == memory",
           "group": "inline"
         }
       ]
     },
     "configuration": {
-      "title": "LedgerMem",
+      "title": "Mnemo",
       "properties": {
-        "ledgermem.apiKey": {
+        "getmnemo.apiKey": {
           "type": "string",
           "default": "",
-          "description": "DEPRECATED — use the 'LedgerMem: Set API Key' command. Stored in plaintext on disk; values here will be migrated to VS Code SecretStorage on activation and then cleared.",
+          "description": "DEPRECATED — use the 'Mnemo: Set API Key' command. Stored in plaintext on disk; values here will be migrated to VS Code SecretStorage on activation and then cleared.",
           "scope": "machine-overridable",
-          "deprecationMessage": "Use the 'LedgerMem: Set API Key' command. Plaintext API keys in settings.json will be migrated to SecretStorage automatically."
+          "deprecationMessage": "Use the 'Mnemo: Set API Key' command. Plaintext API keys in settings.json will be migrated to SecretStorage automatically."
         },
-        "ledgermem.workspaceId": {
+        "getmnemo.workspaceId": {
           "type": "string",
           "default": "",
           "description": "Workspace ID to scope memory operations to."
         },
-        "ledgermem.defaultLimit": {
+        "getmnemo.defaultLimit": {
           "type": "number",
           "default": 10,
           "minimum": 1,
           "maximum": 100,
           "description": "Default number of results to return for searches and the sidebar."
         },
-        "ledgermem.endpoint": {
+        "getmnemo.endpoint": {
           "type": "string",
-          "default": "https://api.ledgermem.dev",
-          "description": "LedgerMem API endpoint."
+          "default": "https://api.getmnemo.dev",
+          "description": "Mnemo API endpoint."
         }
       }
     }
@@ -154,7 +154,7 @@
     "vscode:prepublish": "npm run compile"
   },
   "dependencies": {
-    "@ledgermem/memory": "^0.1.0"
+    "@getmnemo/memory": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { LedgerMemClient } from "@ledgermem/memory";
+import { MnemoClient } from "@getmnemo/memory";
 import { EXTENSION_ID } from "./extension";
 
-export interface LedgerMemConfig {
+export interface MnemoConfig {
   apiKey: string;
   workspaceId: string;
   defaultLimit: number;
@@ -18,18 +18,18 @@ export interface Memory {
 }
 
 export interface ClientHandle {
-  readonly config: LedgerMemConfig;
+  readonly config: MnemoConfig;
   /** Force a fresh read of settings + secrets and return the latest snapshot. */
-  refreshConfig(): Promise<LedgerMemConfig>;
+  refreshConfig(): Promise<MnemoConfig>;
   search(query: string, limit?: number): Promise<readonly Memory[]>;
   add(content: string, metadata?: Record<string, unknown>): Promise<Memory>;
   delete(id: string): Promise<void>;
   recent(limit?: number): Promise<readonly Memory[]>;
 }
 
-const SECRET_API_KEY = "ledgermem.apiKey";
+const SECRET_API_KEY = "getmnemo.apiKey";
 
-async function readConfig(secrets?: vscode.SecretStorage): Promise<LedgerMemConfig> {
+async function readConfig(secrets?: vscode.SecretStorage): Promise<MnemoConfig> {
   const cfg = vscode.workspace.getConfiguration(EXTENSION_ID);
   // Prefer SecretStorage; fall back to settings only as a one-time migration source.
   const secretKey = secrets ? await secrets.get(SECRET_API_KEY) : undefined;
@@ -39,33 +39,33 @@ async function readConfig(secrets?: vscode.SecretStorage): Promise<LedgerMemConf
     apiKey,
     workspaceId: cfg.get<string>("workspaceId", ""),
     defaultLimit: cfg.get<number>("defaultLimit", 10),
-    endpoint: cfg.get<string>("endpoint", "https://api.ledgermem.dev"),
+    endpoint: cfg.get<string>("endpoint", "https://api.getmnemo.dev"),
   };
 }
 
 export function createClient(secrets?: vscode.SecretStorage): ClientHandle {
   // Re-read config on every call so settings changes take effect immediately.
-  let cachedConfig: LedgerMemConfig = {
+  let cachedConfig: MnemoConfig = {
     apiKey: "",
     workspaceId: "",
     defaultLimit: 10,
-    endpoint: "https://api.ledgermem.dev",
+    endpoint: "https://api.getmnemo.dev",
   };
   // Refresh cache eagerly; getters expose the latest snapshot synchronously.
-  const refresh = async (): Promise<LedgerMemConfig> => {
+  const refresh = async (): Promise<MnemoConfig> => {
     cachedConfig = await readConfig(secrets);
     return cachedConfig;
   };
   void refresh();
   const handle: ClientHandle = {
-    get config(): LedgerMemConfig {
+    get config(): MnemoConfig {
       return cachedConfig;
     },
     refreshConfig: refresh,
     async search(query: string, limit?: number): Promise<readonly Memory[]> {
       const cfg = await refresh();
       assertConfigured(cfg);
-      const sdk = new LedgerMemClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
+      const sdk = new MnemoClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
       const results = await sdk.search({
         query,
         workspaceId: cfg.workspaceId,
@@ -76,7 +76,7 @@ export function createClient(secrets?: vscode.SecretStorage): ClientHandle {
     async add(content: string, metadata?: Record<string, unknown>): Promise<Memory> {
       const cfg = await refresh();
       assertConfigured(cfg);
-      const sdk = new LedgerMemClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
+      const sdk = new MnemoClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
       const created = await sdk.add({
         content,
         workspaceId: cfg.workspaceId,
@@ -87,13 +87,13 @@ export function createClient(secrets?: vscode.SecretStorage): ClientHandle {
     async delete(id: string): Promise<void> {
       const cfg = await refresh();
       assertConfigured(cfg);
-      const sdk = new LedgerMemClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
+      const sdk = new MnemoClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
       await sdk.delete({ id, workspaceId: cfg.workspaceId });
     },
     async recent(limit?: number): Promise<readonly Memory[]> {
       const cfg = await refresh();
       assertConfigured(cfg);
-      const sdk = new LedgerMemClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
+      const sdk = new MnemoClient({ apiKey: cfg.apiKey, baseUrl: cfg.endpoint });
       const results = await sdk.list({
         workspaceId: cfg.workspaceId,
         limit: limit ?? cfg.defaultLimit,
@@ -106,15 +106,15 @@ export function createClient(secrets?: vscode.SecretStorage): ClientHandle {
   return handle;
 }
 
-function assertConfigured(cfg: LedgerMemConfig): void {
+function assertConfigured(cfg: MnemoConfig): void {
   if (!cfg.apiKey) {
     throw new Error(
-      "LedgerMem API key is not set. Run 'LedgerMem: Set API Key' to store it securely.",
+      "Mnemo API key is not set. Run 'Mnemo: Set API Key' to store it securely.",
     );
   }
   if (!cfg.workspaceId) {
     throw new Error(
-      "LedgerMem workspace ID is not set. Open Settings and configure 'ledgermem.workspaceId'.",
+      "Mnemo workspace ID is not set. Open Settings and configure 'getmnemo.workspaceId'.",
     );
   }
 }
