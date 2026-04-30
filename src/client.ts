@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { MnemoClient } from "@getmnemo/memory";
+import { MnemoClient } from "@mnemo/memory";
 import { EXTENSION_ID } from "./extension";
 
 export interface MnemoConfig {

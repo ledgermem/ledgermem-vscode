@@ -1,5 +1,5 @@
 {
-  "name": "getmnemo-vscode",
+  "name": "mnemo-vscode",
   "displayName": "Mnemo",
   "description": "Persistent memory for AI coding assistants. Search, add, and manage memories from VS Code, Cursor, Windsurf, and code-server.",
   "version": "0.1.0",
@@ -154,7 +154,7 @@
     "vscode:prepublish": "npm run compile"
   },
   "dependencies": {
-    "@getmnemo/memory": "^0.1.0"
+    "@mnemo/memory": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

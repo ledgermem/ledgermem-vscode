@@ -58,7 +58,7 @@ vi.mock("vscode", () => {
   };
 });
 
-vi.mock("@getmnemo/memory", () => {
+vi.mock("@mnemo/memory", () => {
   return {
     MnemoClient: class {
       async search(): Promise<unknown[]> {
